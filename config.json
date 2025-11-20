@@ -1,0 +1,20 @@
+{
+  "webhook_url": "https://discord.com/api/webhooks/1441075126438203473/9hDOfVEcGPLzYMDf68qebxdWNYw_LVrKIwWjhkNmxKd-dMD-P8m49Xg-GOAAGwOfNFRw",
+  "interval_between_products_seconds": 30,
+  "interval_between_cycles_seconds": 3600,
+  "request_headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+  },
+  "products": [
+    {
+      "name": "PlayStation®5 Slim Digital -Pacote ASTRO BOT e Gran Turismo 7",
+      "url": "https://www.amazon.com.br/PlayStation%C2%AE5-Digital-Pacote-ASTRO-Turismo/dp/B0F7Z9F9SD",
+      "target_price": 3200.0
+    },
+    {
+      "name": "Controle sem fio DualSense - Edição limitada do 30º aniversário",
+      "url": "https://www.amazon.com.br/PlayStation-DualSense-Wireless-Controller-Anniversary/dp/B0DJWC4YK7/ref=sr_1_2?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3QQWKZCJ3IDR9&dib=eyJ2IjoiMSJ9._Xb1CShtZPLhbCUXmWD9hAmSUnGdns15WfLQGzLqkQp5SAPGHL4J8F4S6jroRa8n_y3efQI1Y9-XQiw1Zis9aFSEiOZzWkpieISpxBbNg9pDXyrxL-SZDTHzeTKpij2a0ev-xqZeNz77dJafCmzc2OAiEBLOKI1rOvCwKeqw2MQ.Y687-pl3oTNIQJVngb4IgS0HbVGzh5t20ELYtmJX5hw&dib_tag=se&keywords=dualsense+30+anos&qid=1763649675&s=videogames&sprefix=dualsense+30+anos%2Cvideogames%2C180&sr=1-2&ufe=app_do%3Aamzn1.fos.95de73c3-5dda-43a7-bd1f-63af03b14751",
+      "target_price": 900.0
+    }
+  ]
+}
