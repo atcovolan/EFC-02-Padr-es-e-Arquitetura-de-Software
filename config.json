@@ -3,8 +3,8 @@
   "interval_between_products_seconds": 30,
   "interval_between_cycles_seconds": 3600,
 
-  "max_retries_per_product": 10,
-  "retry_delay_seconds": 10,
+  "max_retries_per_product": 15,
+  "retry_delay_seconds": 15,
   "request_headers": {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
   },
