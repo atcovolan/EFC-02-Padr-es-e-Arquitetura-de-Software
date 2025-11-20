@@ -1,9 +1,9 @@
 import json
-import re
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Dict, Optional
+import random
 
 import requests
 from bs4 import BeautifulSoup
@@ -44,6 +44,14 @@ class ConfigRepository(ABC):
 
     @abstractmethod
     def get_interval_between_cycles(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_max_retries_per_product(self) -> int:
+        pass
+
+    @abstractmethod
+    def get_retry_delay_seconds(self) -> int:
         pass
 
 
@@ -100,26 +108,38 @@ class JsonFileConfigRepository(ConfigRepository):
         return self._data["webhook_url"]
 
     def get_interval_between_products(self) -> int:
-        return int(self._data.get("interval_between_products_seconds", 5))
+        return int(self._data.get("interval_between_products_seconds", 30))
 
     def get_interval_between_cycles(self) -> int:
-        return int(self._data.get("interval_between_cycles_seconds", 30))
+        return int(self._data.get("interval_between_cycles_seconds", 3600))
+
+    def get_max_retries_per_product(self) -> int:
+        return int(self._data.get("max_retries_per_product", 2))
+
+    def get_retry_delay_seconds(self) -> int:
+        return int(self._data.get("retry_delay_seconds", 30))
 
     def get_request_headers(self) -> Dict[str, str]:
         return self._data.get("request_headers", {})
 
 
 class RequestsPriceFetcher(PriceFetcher):
-    """Busca o HTML usando requests (pode ser reutilizado para outros sites)."""
-
-    def __init__(self, headers: Optional[Dict[str, str]] = None, timeout: int = 15):
+    def __init__(self, headers=None, timeout=15, use_session=False):
         self._headers = headers or {}
         self._timeout = timeout
+        self._use_session = use_session
+        self._session = requests.Session() if use_session else None
 
     def fetch_html(self, product: Product) -> str:
-        resp = requests.get(product.url, headers=self._headers, timeout=self._timeout)
+        if self._use_session and self._session:
+            resp = self._session.get(product.url, headers=self._headers, timeout=self._timeout)
+        else:
+            resp = requests.get(product.url, headers=self._headers, timeout=self._timeout)
+
         resp.raise_for_status()
         return resp.text
+
+
 
 
 class AmazonPriceParser(PriceParser):
@@ -203,6 +223,8 @@ class PriceMonitor:
         notifier: Notifier,
         interval_between_products: int,
         interval_between_cycles: int,
+        max_retries_per_product: int,
+        retry_delay_seconds: int,
     ):
         self._products = products
         self._fetcher = fetcher
@@ -210,17 +232,31 @@ class PriceMonitor:
         self._notifier = notifier
         self._interval_between_products = interval_between_products
         self._interval_between_cycles = interval_between_cycles
+        self._max_retries_per_product = max_retries_per_product
+        self._retry_delay_seconds = retry_delay_seconds
 
-    def check_once(self) -> None:
-        for product in self._products:
+    def _random_retry_delay(self):
+        import random
+        base = self._retry_delay_seconds
+        delay = base + random.uniform(-2, 5)
+        return max(1, delay)
+
+    def _check_single_product(self, product: Product) -> None:
+        attempts = 0
+        last_html = None
+
+        while attempts <= self._max_retries_per_product:
+            attempts += 1
             try:
                 html = self._fetcher.fetch_html(product)
+                last_html = html
                 current_price = self._parser.extract_price(html)
 
-                if current_price is None:
-                    print(f"[WARN] Não foi possível extrair o preço de '{product.name}'.")
-                else:
-                    print(f"[INFO] {product.name} -> preço atual R$ {current_price:.2f} (target R$ {product.target_price:.2f})")
+                if current_price is not None:
+                    print(
+                        f"[INFO] {product.name} -> preço atual R$ {current_price:.2f} "
+                        f"(target R$ {product.target_price:.2f})"
+                    )
 
                     if current_price <= product.target_price:
                         msg = (
@@ -230,21 +266,50 @@ class PriceMonitor:
                         )
                         self._notifier.notify(msg)
 
+                    return  # sucesso, sai do while
+
+                print(
+                    f"[WARN] Tentativa {attempts} não conseguiu extrair o preço de '{product.name}'."
+                )
+
             except Exception as e:
-                print(f"[ERROR] Erro ao verificar {product.name}: {e}")
+                print(f"[ERROR] Erro na tentativa {attempts} para {product.name}: {e}")
 
-            # 👇 intervalo ENTRE PRODUTOS
-            print(f"Aguardando {self._interval_between_products} segundos antes do próximo produto...")
-            time.sleep(self._interval_between_products)
+            if attempts <= self._max_retries_per_product:
+                delay = self._random_retry_delay()
+                print(f"Aguardando {delay:.2f} segundos para tentar novamente...")
+                time.sleep(delay)
 
-    def run_forever(self):
+        # se chegou aqui, falhou todas as tentativas
+        print(f"[ERROR] Falha definitiva ao extrair preço de '{product.name}'.")
+        if last_html:
+            with open("last_failed.html", "w", encoding="utf-8") as f:
+                f.write(last_html)
+            print("[DEBUG] HTML da última tentativa salvo em last_failed.html")
+
+    def check_once(self) -> None:
+        for idx, product in enumerate(self._products, start=1):
+            print(f"\n--- Produto {idx}: {product.name} ---")
+            self._check_single_product(product)
+
+            if idx < len(self._products):
+                print(
+                    f"Aguardando {self._interval_between_products} segundos "
+                    f"antes de verificar o próximo produto..."
+                )
+                time.sleep(self._interval_between_products)
+
+    def run_forever(self) -> None:
         while True:
-            print("\n=========== VERIFICAÇÃO DE PREÇOS ===========")
+            print("\n=========== INICIANDO CICLO DE VERIFICAÇÃO ===========")
             self.check_once()
-
-            # 👇 intervalo ENTRE CICLOS
-            print(f"Lista concluída. Aguardando {self._interval_between_cycles} segundos para nova verificação...\n")
+            print(
+                f"\nCiclo finalizado. Aguardando {self._interval_between_cycles} segundos "
+                f"para iniciar um novo ciclo...\n"
+            )
             time.sleep(self._interval_between_cycles)
+
+
 
 
 # ==========================
@@ -260,9 +325,11 @@ def main():
 
     interval_between_products = config.get_interval_between_products()
     interval_between_cycles = config.get_interval_between_cycles()
+    max_retries = config.get_max_retries_per_product()
+    retry_delay = config.get_retry_delay_seconds()
 
     fetcher = RequestsPriceFetcher(headers=headers)
-    parser = AmazonPriceParser()
+    parser = AmazonPriceParser()   # sua versão original
     notifier = DiscordWebhookNotifier(webhook_url)
 
     monitor = PriceMonitor(
@@ -272,9 +339,12 @@ def main():
         notifier=notifier,
         interval_between_products=interval_between_products,
         interval_between_cycles=interval_between_cycles,
+        max_retries_per_product=max_retries,
+        retry_delay_seconds=retry_delay,
     )
 
     monitor.run_forever()
+
 
 
 
