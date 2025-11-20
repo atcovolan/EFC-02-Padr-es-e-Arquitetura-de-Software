@@ -210,7 +210,7 @@ Para usar o monitor criado, você precisa de uma conta no aplicativo Discord (po
 
 Você precisa estar em um servidor, de preferência privado, onde criará um canal de texto, e em sua configuração, criará um Webhook na parte de integrações. 
 
-![Discord](/notifdisc.png)
+
 
 
 ## Arquivo `config.json`
