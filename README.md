@@ -51,37 +51,6 @@ Após percorrer todos os produtos, o sistema aguarda um intervalo configurado e 
 ## Código rodando
 
 ![Funcionamento](/funcionamento.png)
-
-
-## Arquivo `config.json`
-
-Exemplo:
-
-```json
-{
-  "webhook_url": "SEU_WEBHOOK",
-
-  "interval_between_products_seconds": 20,
-  "interval_between_cycles_seconds": 3600,
-
-  "max_retries_per_product": 2,
-  "retry_delay_seconds": 20,
-
-  "request_headers": {
-    "User-Agent": "Mozilla/5.0",
-    "Accept-Language": "pt-BR,pt;q=0.9"
-  },
-
-  "products": [
-    {
-      "name": "PlayStation 5 Slim",
-      "url": "https://www.amazon.com.br/dp/xxxx",
-      "target_price": 3200.0
-    }
-  ]
-}
-```
-
 ---
 
 ## Padrões de Projeto Utilizados
@@ -120,6 +89,38 @@ Você precisa estar em um servidor, de preferência privado, onde criará um can
 
 ![Discord](/configuracao do discord.png)
 
+
+## Arquivo `config.json`
+
+Configurando o arquivo:
+
+```json
+{
+  "webhook_url": "SEU_WEBHOOK",
+
+  "interval_between_products_seconds": 20,
+  "interval_between_cycles_seconds": 3600,
+
+  "max_retries_per_product": 2,
+  "retry_delay_seconds": 20,
+
+  "request_headers": {
+    "User-Agent": "Mozilla/5.0",
+    "Accept-Language": "pt-BR,pt;q=0.9"
+  },
+
+  "products": [
+    {
+      "name": "PlayStation 5 Slim",
+      "url": "https://www.amazon.com.br/dp/xxxx",
+      "target_price": 3200.0
+    }
+  ]
+}
+```
+Aqui você coloca todos os produtos que deseja monitorar, o link do seu webhook criado no discord, o valor máximo desejado em cada um deles, o intervalo de checagem de produtos e o intervalo nas retries caso a resposta da amazon não venha com o preço.
+
+
 ## Exemplo de notificações
 
 ![Notificações](/notificacoes.png)
@@ -138,8 +139,3 @@ Novos sites podem ser adicionados criando novos `PriceParser`.
 Novos métodos de notificação podem ser adicionados criando novos `Notifier`.
 
 ---
-
-## 🏁 Conclusão
-
-Projeto desenvolvido com foco em boas práticas de Arquitetura e aplicação de padrões estudados na disciplina.
-
