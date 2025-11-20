@@ -48,6 +48,11 @@ Após percorrer todos os produtos, o sistema aguarda um intervalo configurado e 
 
 ---
 
+## Código rodando
+
+![Funcionamento](/funcionamento.png)
+
+
 ## Arquivo `config.json`
 
 Exemplo:
@@ -103,7 +108,7 @@ pip install requests beautifulsoup4
 3. Execute o programa:
 
 ```bash
-python price_monitor.py
+python main.py
 ```
 
 
@@ -113,6 +118,11 @@ Para usar o monitor criado, você precisa de uma conta no aplicativo Discord (po
 
 Você precisa estar em um servidor, de preferência privado, onde criará um canal de texto, e em sua configuração, criará um Webhook na parte de integrações. 
 
+![Discord](/configuracao do discord.png)
+
+## Exemplo de notificações
+
+![Notificações](/notificacoes.png)
 
 ---
 
