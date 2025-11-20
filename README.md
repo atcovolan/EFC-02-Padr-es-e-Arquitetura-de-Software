@@ -204,13 +204,13 @@ python main.py
 ```
 
 
-## Como receber a notificação de preços?
+## Como configurar um webhook no discord?
 
 Para usar o monitor criado, você precisa de uma conta no aplicativo Discord (pode usá-lo tanto no navegador, quando programa no PC ou mesmo em sua versão mobile).
 
 Você precisa estar em um servidor, de preferência privado, onde criará um canal de texto, e em sua configuração, criará um Webhook na parte de integrações. 
 
-![Discord](/configuracao do discord.png)
+![Discord](/notifdisc.png)
 
 
 ## Arquivo `config.json`
