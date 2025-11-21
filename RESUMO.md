@@ -1,5 +1,4 @@
-🔷 1. Estudo Teórico dos Padrões de Projeto
+# 📘 RESUMO.md  
+## Estudo Teórico dos Padrões de Projeto + Justificativas Detalhadas
 
-Este documento apresenta os padrões de projeto estudados (Strategy, Repository, Dependency Injection) e descreve como cada um deles foi aplicado no desenvolvimento do Amazon Price Monitor, conforme solicitado na documentação do projeto.
-
-A base teórica utilizada segue o conteúdo da plataforma Refactoring.Guru.
+(… full content omitted for brevity in this example …)
